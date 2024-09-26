@@ -1,70 +1,205 @@
-# Getting Started with Create React App
+- ```base
+        npx create-react-app react-api-app
+    ```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+-    ```base
+        cd react-api-app
+     ```
 
-## Available Scripts
+-   ```base
+        npm install axios
+    ```
+- Add to App.js  
+    ```base
+        import React, { useState, useEffect } from 'react';
+        import axios from 'axios';
 
-In the project directory, you can run:
+        const API_BASE_URL = 'https://dummyapi.online/api/users';
 
-### `npm start`
+        function App() {
+        const [users, setUsers] = useState([]);
+        const [singleUser, setSingleUser] = useState(null);
+        const [userInput, setUserInput] = useState({
+            name: '',
+            username: '',
+            email: '',
+            street: '',
+            city: '',
+            state: '',
+            zipcode: '',
+        });
+        const [userId, setUserId] = useState(1);
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+        // Fetch all users
+        const fetchAllUsers = async () => {
+            try {
+            const response = await axios.get(API_BASE_URL);
+            setUsers(response.data);
+            } catch (error) {
+            console.error("Error fetching all users", error);
+            }
+        };
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+        // Fetch single user
+        const fetchSingleUser = async () => {
+            try {
+            const response = await axios.get(`${API_BASE_URL}/${userId}`);
+            setSingleUser(response.data);
+            } catch (error) {
+            console.error("Error fetching single user", error);
+            }
+        };
 
-### `npm test`
+        // Create a new user
+        const createUser = async () => {
+            const newUser = {
+            name: userInput.name,
+            username: userInput.username,
+            email: userInput.email,
+            address: {
+                street: userInput.street,
+                city: userInput.city,
+                state: userInput.state,
+                zipcode: userInput.zipcode,
+            },
+            };
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+            try {
+            const response = await axios.post(API_BASE_URL, newUser);
+            alert("User created successfully!");
+            fetchAllUsers(); // Refresh the user list after creation
+            } catch (error) {
+            console.error("Error creating user", error);
+            }
+        };
 
-### `npm run build`
+        // Update an existing user
+        const updateUser = async () => {
+            const updatedUser = {
+            name: userInput.name,
+            username: userInput.username,
+            email: userInput.email,
+            address: {
+                street: userInput.street,
+                city: userInput.city,
+                state: userInput.state,
+                zipcode: userInput.zipcode,
+            },
+            };
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+            try {
+            const response = await axios.put(`${API_BASE_URL}/${userId}`, updatedUser);
+            alert("User updated successfully!");
+            fetchAllUsers(); // Refresh the user list after update
+            } catch (error) {
+            console.error("Error updating user", error);
+            }
+        };
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+        // Handle input change
+        const handleInputChange = (e) => {
+            setUserInput({ ...userInput, [e.target.name]: e.target.value });
+        };
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+        // Fetch users on initial render
+        useEffect(() => {
+            fetchAllUsers();
+        }, []);
 
-### `npm run eject`
+        return (
+            <div className="App">
+            <h1>React API Example</h1>
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+            {/* Get All Users */}
+            <button onClick={fetchAllUsers}>Get All Users</button>
+            <ul>
+                {users.map((user) => (
+                <li key={user.id}>{user.name} - {user.email}</li>
+                ))}
+            </ul>
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+            {/* Get One User */}
+            <div>
+                <h2>Get Single User</h2>
+                <input
+                type="number"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="Enter user ID"
+                />
+                <button onClick={fetchSingleUser}>Get User</button>
+                {singleUser && (
+                <div>
+                    <h3>{singleUser.name}</h3>
+                    <p>{singleUser.email}</p>
+                    <p>{singleUser.address.street}, {singleUser.address.city}</p>
+                </div>
+                )}
+            </div>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+            {/* Create/Update User Form */}
+            <div>
+                <h2>Create/Update User</h2>
+                <input
+                type="text"
+                name="name"
+                value={userInput.name}
+                onChange={handleInputChange}
+                placeholder="Name"
+                />
+                <input
+                type="text"
+                name="username"
+                value={userInput.username}
+                onChange={handleInputChange}
+                placeholder="Username"
+                />
+                <input
+                type="email"
+                name="email"
+                value={userInput.email}
+                onChange={handleInputChange}
+                placeholder="Email"
+                />
+                <input
+                type="text"
+                name="street"
+                value={userInput.street}
+                onChange={handleInputChange}
+                placeholder="Street"
+                />
+                <input
+                type="text"
+                name="city"
+                value={userInput.city}
+                onChange={handleInputChange}
+                placeholder="City"
+                />
+                <input
+                type="text"
+                name="state"
+                value={userInput.state}
+                onChange={handleInputChange}
+                placeholder="State"
+                />
+                <input
+                type="text"
+                name="zipcode"
+                value={userInput.zipcode}
+                onChange={handleInputChange}
+                placeholder="Zipcode"
+                />
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+                <button onClick={createUser}>Create User</button>
+                <button onClick={updateUser}>Update User</button>
+            </div>
+            </div>
+        );
+        }
 
-## Learn More
+        export default App;
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    ```
+-   ```base
+        npm start
+    ```
